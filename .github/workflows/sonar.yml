@@ -1,56 +1,36 @@
-name: CI
-
+name: SonarQube
 on:
   push:
-    branches: [ "main", "master" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main", "master" ]
-
+    types: [opened, synchronize, reopened]
 jobs:
-  build-and-sonar:
-    name: Build & SonarQube Analysis
+  build:
+    name: Build and analyze
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for SonarQube to get full git history
-
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
+          java-version: 17
+          distribution: 'zulu' # Alternative distribution options are available
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-
-      - name: Grant execute permission for gradlew
-        working-directory: demo_mapstruct
-        run: chmod +x gradlew
-
-      - name: Build and test
-        working-directory: demo_mapstruct
-        run: ./gradlew build
-
-      - name: SonarQube analysis
-        working-directory: demo_mapstruct
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+      - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: ./gradlew sonar --info
+        run: ./gradlew build sonar --info
