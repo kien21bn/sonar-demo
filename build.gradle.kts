@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "2.1.0"
-    id("org.sonarqube") version "5.1.0.4882"
+    id("org.sonarqube") version "7.2.3.7755"
     jacoco
 }
 
@@ -29,9 +29,8 @@ tasks.jacocoTestReport {
 
 sonar {
     properties {
-        property("sonar.projectKey", "kotlin-demo")
-        property("sonar.projectName", "Kotlin Demo")
-        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml")
+        property("sonar.projectKey", "kien21bn_mapstruct-sonar-demo")
+        property("sonar.organization", "kien21bn")
     }
 }
 
