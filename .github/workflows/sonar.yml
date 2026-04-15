@@ -1,4 +1,4 @@
-name: CI
+name: SonarQube
 
 on:
   push:
@@ -41,16 +41,15 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Grant execute permission for gradlew
-        working-directory: demo_mapstruct
+        working-directory: sonar-demo
         run: chmod +x gradlew
 
       - name: Build and test
-        working-directory: demo_mapstruct
+        working-directory: sonar-demo
         run: ./gradlew build
 
       - name: SonarQube analysis
-        working-directory: demo_mapstruct
+        working-directory: sonar-demo
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: ./gradlew sonar --info
