@@ -1,1 +1,1 @@
-# mapstruct-sonar-demo
+# sonar-demo
