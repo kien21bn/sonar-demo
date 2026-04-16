@@ -24,10 +24,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build and test with coverage
-        run: ./gradlew test jacocoTestReport
-
-      - name: SonarQube scan
-        uses: SonarSource/sonarqube-scan-action@v6
+      - name: Build, test and SonarCloud scan
+        run: ./gradlew test jacocoTestReport sonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
