@@ -31,6 +31,7 @@ sonar {
     properties {
         property("sonar.projectKey", "kien21bn_mapstruct-sonar-demo")
         property("sonar.organization", "kien21bn")
+        property("sonar.host.url", "https://sonarcloud.io")
     }
 }
 
