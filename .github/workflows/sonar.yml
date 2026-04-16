@@ -1,55 +1,34 @@
-name: SonarQube
-
+name: Build, Test & SonarQube
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main" ]
 
 jobs:
-  build-and-sonar:
-    name: Build & SonarQube Analysis
+  build:
+    name: Build, Test & SonarQube
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for SonarQube to get full git history
+          fetch-depth: 0  # Required for SonarQube new code detection
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Cache SonarQube packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+      - name: Build and test with coverage
+        run: ./gradlew test jacocoTestReport
 
-      - name: Grant execute permission for gradlew
-        working-directory: sonar-demo
-        run: chmod +x gradlew
-
-      - name: Build and test
-        working-directory: sonar-demo
-        run: ./gradlew build
-
-      - name: SonarQube analysis
-        working-directory: sonar-demo
+      - name: SonarQube scan
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonar --info
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
